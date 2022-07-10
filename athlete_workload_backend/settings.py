@@ -47,19 +47,20 @@ INSTALLED_APPS = [
 CORS_ORIGIN_ALLOW_ALL = True
 AUTH_USER_MODEL = 'authentication.User'
 
-# REST_FRAMEWORK = {
-#     'NON_FIELD_ERRORS_KEY': 'errors',
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     ),
-# }
-
-SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'BLACKLIST_AFTER_ROTATION': False
+REST_FRAMEWORK = {
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'authentication.backend.JWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'core.exceptions.core_exception_handler'
 }
+
+# SIMPLE_JWT = {
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'BLACKLIST_AFTER_ROTATION': False
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

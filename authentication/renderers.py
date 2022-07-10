@@ -1,6 +1,5 @@
 from email import charset
 import json
-from lib2to3.pgen2 import token
 from rest_framework.renderers import JSONRenderer
 
 class UserJSONRenderer(JSONRenderer):
