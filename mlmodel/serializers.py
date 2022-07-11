@@ -1,6 +1,6 @@
 from dataclasses import fields
 from pyexpat import model
-from .models import MlModel,TrainData
+from .models import MlModel, ModelSport,TrainData
 from rest_framework import serializers
 
 class MlModelSerializer(serializers.ModelSerializer):
@@ -17,4 +17,11 @@ class TrainDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=TrainData
+        fields='__all__'
+
+
+class SportModelSerializer(serializers.ModelSerializer):
+    model=MlModelSerializer(many=True)
+    class Meta:
+        model=ModelSport
         fields='__all__'
