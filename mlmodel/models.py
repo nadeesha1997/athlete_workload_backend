@@ -9,6 +9,7 @@ class MlModel(models.Model):
 
 class TrainData(models.Model):
     data_set=models.JSONField()
+    sport=models.ForeignKey(Sport,related_name='train_sport',on_delete=models.CASCADE)
 
 class ModelSport(models.Model):
     sport=models.ForeignKey(Sport,related_name='sport',on_delete=models.CASCADE)

@@ -2,7 +2,13 @@ from dataclasses import fields
 from rest_framework import serializers
 from .models import Sport,Activity
 
+class SportsSerializer(serializers.ModelSerializer):
+    name=serializers.CharField()
+    # activities=ActivitySerializer(many=True)
 
+    class Meta:
+        model=Sport
+        fields='__all__'
 
 class ActivitySerializer(serializers.ModelSerializer):
     id_field=serializers.IntegerField()
@@ -13,10 +19,3 @@ class ActivitySerializer(serializers.ModelSerializer):
         model=Activity
         fields='__all__'
 
-class SportsSerializer(serializers.ModelSerializer):
-    name=serializers.CharField()
-    activities=ActivitySerializer(many=True)
-
-    class Meta:
-        model=Sport
-        fields='__all__'
