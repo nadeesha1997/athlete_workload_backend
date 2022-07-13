@@ -114,10 +114,11 @@ from authentication.serializers import UserLoginSerializer, UserProfileSerialize
 
 def get_token_for_user(user):
     refresh=RefreshToken.for_user(user)
-    return {
-        'refresh':str(refresh),
-        'access':str(refresh.access_token),
-    }
+    # return {
+    #     # 'refresh':str(refresh),
+    #     'access':str(refresh.access_token),
+    # }
+    return str(refresh.access_token)
 
 class UserRegistrationView(APIView):
     renderer_classes=[UserRenderer]
@@ -138,7 +139,7 @@ class UserLoginView(APIView):
             user=authenticate(email=email,password=password)
             if user is not None:
                 token=get_token_for_user(user)
-                return Response({'token':token,'msg':'Login Success'},status=status.HTTP_200_OK)
+                return Response({'token':token,'msg':'Login Success','name':user.name},status=status.HTTP_200_OK)
             else:
                 return Response({'errors':{'non_fiels_errors':['Email or password invakid']}},status=status.HTTP_401_UNAUTHORIZED)
 
