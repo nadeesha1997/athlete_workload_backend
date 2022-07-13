@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 class UploadListView(generics.ListCreateAPIView):
     serializer_class=UploadSerializer
     queryset=Upload.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 class UploadView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class=UploadSerializer
