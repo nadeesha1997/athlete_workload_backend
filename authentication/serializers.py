@@ -114,36 +114,36 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
         fields=['id','email','name']
-
-class UserChangePasswordSerializer(serializers.ModelSerializer):
-    password=serializers.CharField(max_length=255,style={'input_type':'password'},write_only=True)
-    password2=serializers.CharField(max_length=255,style={'input_type':'password'},write_only=True)
-    class Meta:
-        model=User
-        fields=['password','password2']
-    def validate(self, attrs):
-        password=attrs.get('password')
-        password2=attrs.get('password2')
-        if password !=password2:
-            raise serializers.ValidationError("Password and confirm password doesnt match")
-        user=self.context.get('user')
-        user.set_password(password)
-        user.save()
-        return attrs
-
-class SendResetPasswordEmailSerializer(serializers.ModelSerializer):
-    email=serializers.EmailField(max_length=255)
-    class Meta:
-        model=User
-        fields=['email']
-    def validate(self, attrs):
-        email=attrs.get('email')
-        if User.objects.filter(email=email).exists():
-            user=User.objects.get(email=email)
-            uid=urlsafe_base64_encode(force_bytes(user.id))
-            token=PasswordResetTokenGenerator().make_token(user)
-            link='http://127.0.0.1/auth/reset/'+uid+'/'+token
-            print(link)
-            return attrs
-        else:
-            raise serializers.ValidationError('You are not a registered user')
+#
+# class UserChangePasswordSerializer(serializers.ModelSerializer):
+#     password=serializers.CharField(max_length=255,style={'input_type':'password'},write_only=True)
+#     password2=serializers.CharField(max_length=255,style={'input_type':'password'},write_only=True)
+#     class Meta:
+#         model=User
+#         fields=['password','password2']
+#     def validate(self, attrs):
+#         password=attrs.get('password')
+#         password2=attrs.get('password2')
+#         if password !=password2:
+#             raise serializers.ValidationError("Password and confirm password doesnt match")
+#         user=self.context.get('user')
+#         user.set_password(password)
+#         user.save()
+#         return attrs
+#
+# class SendResetPasswordEmailSerializer(serializers.ModelSerializer):
+#     email=serializers.EmailField(max_length=255)
+#     class Meta:
+#         model=User
+#         fields=['email']
+#     def validate(self, attrs):
+#         email=attrs.get('email')
+#         if User.objects.filter(email=email).exists():
+#             user=User.objects.get(email=email)
+#             uid=urlsafe_base64_encode(force_bytes(user.id))
+#             token=PasswordResetTokenGenerator().make_token(user)
+#             link='http://127.0.0.1/auth/reset/'+uid+'/'+token
+#             print(link)
+#             return attrs
+#         else:
+#             raise serializers.ValidationError('You are not a registered user')

@@ -57,3 +57,4 @@ class ActivityList(generics.ListCreateAPIView):
 class ActivityDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset=Activity.objects.all()
     serializer_class=serializers.ActivitySerializer
+
