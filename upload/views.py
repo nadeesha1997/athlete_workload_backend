@@ -53,20 +53,19 @@ class MergeDataView(generics.GenericAPIView):
 
     def get(self, request, date=None):
         datalist = Upload.objects.filter(date=date, user_id=request.user.id)
-        date = datalist[0].date
+        # date = datalist[0].date
         data = []
-        for item in range(len(datalist)):
-            print(item.id)
-            data = data + item.data
+        for item in datalist:
+            data=data+item.data
             # item.delete()
         print(data)
-        # savedata = {
-        #     'user': request.user,
-        #     'date': date,
-        #     'data': data
-        # }
-        # serializer = self.serializer_class(data=savedata)
-        # if serializer.is_valid(raise_exception=True):
-        #     serializer.save()
-        #     return Response({}, status=status.HTTP_200_OK)
-        return Response({}, status=status.HTTP_200_OK)
+        savedata = {
+            'user': request.user.id,
+            'date': date,
+            'data': data
+        }
+        serializer = self.serializer_class(data=savedata)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
