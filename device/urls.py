@@ -9,4 +9,6 @@ urlpatterns = [
     path('<pk>', views.DeviceView.as_view(), name='device'),
     path('reading/', views.ReadingListView.as_view(), name='readinglist'),
     path('reading/<pk>', views.ReadingView.as_view(), name='reading'),
+    path('sport/', views.SportMountListView.as_view(), name='sport_mountlist'),
+    path('sport/<pk>', views.SportMountView.as_view(), name='sport_mount'),
 ]
