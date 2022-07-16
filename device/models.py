@@ -6,6 +6,7 @@ from sport.models import Sport
 
 class MountPlace(models.Model):
     place = models.CharField(max_length=50)
+    mounting_order = models.IntegerField(unique=True)
 
     def __str__(self):
         return self.place

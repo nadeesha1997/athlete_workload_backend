@@ -9,6 +9,7 @@ from .serializers import UploadSerializer, MergeDataSerializer
 from .models import Upload, MergeData
 from rest_framework.permissions import IsAuthenticated
 from datetime import date
+import numpy as np
 
 
 # Create your views here.
@@ -53,46 +54,91 @@ class MergeDataView(generics.GenericAPIView):
     serializer_class = MergeDataSerializer
     permission_classes = [IsAuthenticated]
 
-    # def get(self, request, date=None):
-    #     datalist = Upload.objects.filter(date=date, user_id=request.user.id)
-    #     # date = datalist[0].date
-    #     data = []
-    #     for item in datalist:
-    #         data=data+item.data
-    #         # item.delete()
-    #     print(data)
-    #     savedata = {
-    #         'user': request.user.id,
-    #         'date': date,
-    #         'data': data
-    #     }
-    #     serializer = self.serializer_class(data=savedata)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def get(self, request, date=None):
+    def post(self, request, date=None):
         datalist = Upload.objects.filter(date=date, user_id=request.user.id)
         sport_id = SportUser.objects.filter(user_id=request.user.id)[0].sport_id
         places = SportMountPlace.objects.filter(sport_id=sport_id)
         devices = Device.objects.all()
-        device_ids = []
+        device_selected = []
         for device in devices:
             for place in places:
-                if device.mount_id == place.id:
-                    device_ids.append(device.id)
-        # print(device_ids)
-        readings = []
-        # reading_list = Reading.objects.all()
-        # for r in reading_list:
-        #     if r.device_id in device_ids:
-        #         readings.append(r)
-        # print(len(readings))
-        # for dataval in datalist:
-        if len(datalist)>0:
-            user=datalist[0].user
-        # for dataval in datalist:
-        #     for i in range(len(device_ids)):
-        #         readings[i]=
 
-        return Response({'data': user.id}, status=status.HTTP_200_OK)
+                if device.mount_id == place.id:
+                    device_selected.append(device)
+        read = {}
+        for d in device_selected:
+            read[d.id] = []
+        for dataval in datalist:
+            temp_data = dataval.data
+            for temp_data_val in temp_data:
+                read[temp_data_val['1']].append(temp_data_val)
+        maximum_time = []
+        minimum_length = []
+        for key in read:
+            temp = []
+            temp.append(read[key])
+            temp.sort(key=lambda x: x[0]['3'])
+            read[key] = temp
+            print(read[key][0][0]['3'])
+            maximum_time.append(read[key][0][0]['3'])
+        maximum = max(maximum_time)
+        print('max' + str(maximum))
+        for key in read:
+            for val in read[key][0]:
+                if val['3'] < maximum:
+                    read[key][0].remove(val)
+        for key in read:
+            minimum_length.append(len(read[key][0]))
+        # min_len = min(len(read[1][0]), len(read[2][0]), len(read[3][0]))
+        min_len = min(minimum_length)
+        for key in read:
+            length = len(read[key][0]) - min_len
+            if length > 0:
+                for i in range(length):
+                    read[key][0].pop(-1)
+        har_data = {}
+        heart_rate = []
+        sport_place_list = list(places)
+        place_list = []
+        for place in sport_place_list:
+            place_list.append(place.place)
+        place_list.sort(key=lambda x: x.mounting_order)
+        # print(len(read[device_selected[0].id][0]))
+        for j in range(len(read[device_selected[0].id][0])):
+            har_data[j]=[]
+        for j in range(len(read[device_selected[0].id][0])):
+            for mount_place in places:
+                for d in device_selected:
+                    if d.mount == mount_place.place:
+                        # print(read[d.id][0][j]['4'])
+                        har_data[j].append(read[d.id][0][j]['4'])
+                        har_data[j].append(read[d.id][0][j]['5'])
+                        har_data[j].append(read[d.id][0][j]['6'])
+                        har_data[j].append(read[d.id][0][j]['7'])
+                        har_data[j].append(read[d.id][0][j]['8'])
+                        har_data[j].append(read[d.id][0][j]['9'])
+                        if d.mount.mounting_order==1:
+                            if read[d.id][0][j]['10']>60:
+                                heart_rate.append(read[d.id][0][j]['10'])
+        final_data={
+            "har":har_data,
+            "hr":heart_rate
+        }
+        export_data = {
+            "data": final_data,
+            "user": request.user.id,
+            "date": date
+        }
+        # print(read[1])
+        serializer = self.serializer_class(data=export_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            for data in datalist:
+                data.delete()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'data': 'merge failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, date=None):
+        models = MergeData.objects.all()
+        serializer = self.serializer_class(instance=models, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
