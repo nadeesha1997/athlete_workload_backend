@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'sport.apps.SportConfig',
     'upload.apps.UploadConfig',
     'device.apps.DeviceConfig',
+    'predict.apps.PredictConfig',
     'corsheaders'
 ]
 

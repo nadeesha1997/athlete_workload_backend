@@ -62,7 +62,6 @@ class MergeDataView(generics.GenericAPIView):
         device_selected = []
         for device in devices:
             for place in places:
-
                 if device.mount_id == place.id:
                     device_selected.append(device)
         read = {}
