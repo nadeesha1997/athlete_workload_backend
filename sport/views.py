@@ -1,9 +1,11 @@
 from django.http import Http404
 from django.shortcuts import render
-from rest_framework import generics,status
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from . import serializers
-from .models import Activity,Sport
+from .models import Activity, Sport, SportUser
+
 
 # Create your views here.
 # class SportView(generics.GenericAPIView):
@@ -43,18 +45,44 @@ from .models import Activity,Sport
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SportList(generics.ListCreateAPIView):
-    queryset=Sport.objects.all()
-    serializer_class=serializers.SportsSerializer
+    queryset = Sport.objects.all()
+    serializer_class = serializers.SportsSerializer
+
 
 class SportDetails(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Sport.objects.all()
-    serializer_class=serializers.SportsSerializer
+    queryset = Sport.objects.all()
+    serializer_class = serializers.SportsSerializer
+
 
 class ActivityList(generics.ListCreateAPIView):
-    queryset=Activity.objects.all()
-    serializer_class=serializers.ActivitySerializer
+    queryset = Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
+
 
 class ActivityDetails(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Activity.objects.all()
-    serializer_class=serializers.ActivitySerializer
+    queryset = Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
 
+
+class SportUserView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = SportUser.objects.all()
+    serializer_class = serializers.SportUserSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        models = SportUser.objects.all().filter(user_id=request.user)
+        print(models)
+        serializer = self.serializer_class(instance=models, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class SportUserDetails(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SportUser.objects.all()
+    serializer_class = serializers.SportUserSerializer
