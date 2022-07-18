@@ -12,7 +12,7 @@ from services.prediction import predict
 from datetime import datetime
 
 # Create your views here.
-from services.workload import next_day_workload
+from services.workload import next_day_workload, activity_acwr
 from sport.models import SportUser, Activity
 from upload.models import MergeData
 
@@ -41,8 +41,9 @@ class PredictView(generics.GenericAPIView):
             average_heart_rate = sum(heart_rate) / len(heart_rate)
         user = all_data.user
         model_date = all_data.date
+        wl_data={"har":activity_count,"hr":average_heart_rate}
         final_data = {
-            "workload_data": {"har": activity_count, "hr": average_heart_rate},
+            "workload_data": wl_data,
             "date": model_date,
             "user": user.id
         }
@@ -51,6 +52,16 @@ class PredictView(generics.GenericAPIView):
             workload_serializer.save()
             return Response(workload_serializer.data, status=status.HTTP_200_OK)
         return Response(workload_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request,date):
+        user=request.user
+        workload_data = Workload.objects.filter(user_id=request.user.id)
+        acwr_val=activity_acwr(list(workload_data))
+        daily_workload=workload_data.filter(date=date)
+        list_daily_workload=list(daily_workload)
+        acwr_vals=[]
+        for key in acwr_val:
+            acwr_vals.append(acwr_val[key])
+        return Response(data=acwr_vals,status=status.HTTP_200_OK)
 
 
 class ScheduleView(generics.GenericAPIView):

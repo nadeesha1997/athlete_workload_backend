@@ -8,14 +8,16 @@ def workload_measurement(workloadlist):
     fourth_week = []
     today = date.today()
     for item in workloadlist:
-        if today - item.date > 21:
-            fourth_week.append(item)
-        elif today - item.date > 14:
-            third_week.append(item)
-        elif today - item.date > 7:
-            second_week.append(item)
-        else:
-            first_week.append(item)
+        day_difference=(today-item.date).days
+        if day_difference<29:
+            if day_difference > 21:
+                fourth_week.append(item)
+            elif day_difference > 14:
+                third_week.append(item)
+            elif day_difference > 7:
+                second_week.append(item)
+            else:
+                first_week.append(item)
     first_week_workload = weekly_workload(first_week)
     second_week_workload = weekly_workload(second_week)
     third_week_workload = weekly_workload(third_week)
@@ -28,14 +30,34 @@ def workload_measurement(workloadlist):
     # }
     return first_week_workload, second_week_workload, third_week_workload, fourth_week_workload
 
+def acwr(first_week,second_week,third_week,forth_week):
+    if not first_week+second_week+third_week+forth_week==0:
+        return (4*first_week)/(first_week+second_week+third_week+forth_week)
+    return 0
+
+def activity_acwr(workload_list):
+    w_list=list(workload_list)
+    acwr_val={}
+    for key in w_list[0].workload_data["har"]:
+        first_week_workload, second_week_workload, third_week_workload, fourth_week_workload=workload_measurement(workload_list)
+        acwr_val[key]=acwr(first_week_workload[key], second_week_workload[key], third_week_workload[key], fourth_week_workload[key])
+        print("first_week_workload"+str(first_week_workload[key]))
+        print("second_week_workload"+str(second_week_workload[key]))
+        print("third_week_workload"+str(third_week_workload[key]))
+        print("fourth_week_workload"+str(fourth_week_workload[key]))
+        print(acwr_val[key])
+    return acwr_val
+
 
 def weekly_workload(workload_list):
     total_workload = {}
     for key in workload_list[0].workload_data["har"]:
         total_workload[key] = 0
     for daily_workload in workload_list:
+        #####################################3
         for key in daily_workload.workload_data["har"]:
-            total_workload[key] += daily_workload.workload_data["har"][key]
+            if daily_workload.workload_data["har"][key]:
+                total_workload[key] += daily_workload.workload_data["har"][key]
     return total_workload
 
 
