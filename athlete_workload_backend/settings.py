@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework_swagger',
     'mlmodel.apps.MlmodelConfig',
     'rest_framework',
     'authentication.apps.AuthenticationConfig',
