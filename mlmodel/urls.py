@@ -9,4 +9,5 @@ urlpatterns = [
     path('sport/<pk>', views.ModelSportDetails.as_view(), name='modelsport'),
     path('data/', views.TrainDatalList.as_view(), name='datalist'),
     path('data/<pk>', views.TrainDataDetails.as_view(), name='data'),
+    path('update/data/',views.UpdateData.as_view(),name='update')
 ]
