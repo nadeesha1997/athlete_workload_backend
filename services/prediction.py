@@ -5,7 +5,7 @@ import tensorflow as tf
 import pandas as pd
 
 frame_size = 100
-hop_size = 25
+hop_size = 1
 
 
 def predict(model, data):

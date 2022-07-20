@@ -123,10 +123,12 @@ class MergeDataView(generics.GenericAPIView):
             "har":har_data,
             "hr":heart_rate
         }
+        # final_data= [har_data, heart_rate]
         export_data = {
             "data": final_data,
             "user": request.user.id,
-            "date": date
+            "date": date,
+            # "times":len(har_data)
         }
         # print(read[1])
         serializer = self.serializer_class(data=export_data)
@@ -138,6 +140,18 @@ class MergeDataView(generics.GenericAPIView):
         return Response({'data': 'merge failed'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, date=None):
-        models = MergeData.objects.all()
+        models = MergeData.objects.filter(user_id=request.user.id,date=date)
         serializer = self.serializer_class(instance=models, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        userdata=list(serializer.data)
+        # print(len(userdata[0]['data']['har']))
+        # print(serializer.data)
+        return_data={"data":serializer.data,"len":len(userdata[0]['data']['har'])}
+        return Response(return_data, status=status.HTTP_200_OK)
+
+class MergeView(generics.ListCreateAPIView):
+    serializer_class = MergeDataSerializer
+    queryset = MergeData.objects.all()
+
+class MergeViewD(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MergeDataSerializer
+    queryset = MergeData.objects.all()
