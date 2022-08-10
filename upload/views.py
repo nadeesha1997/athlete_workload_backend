@@ -8,7 +8,7 @@ from sport.models import Sport, SportUser
 from .serializers import UploadSerializer, MergeDataSerializer
 from .models import Upload, MergeData
 from rest_framework.permissions import IsAuthenticated
-from datetime import date
+from datetime import date, timedelta
 import numpy as np
 
 
@@ -160,4 +160,17 @@ class MergedDataLengthView(generics.GenericAPIView):
     serializer_class = MergeDataSerializer
     queryset = MergeData.objects.all()
     permission_classes = [IsAuthenticated]
-    # def get
+    def get(self,request,day):
+        today=date.today()
+        yesterday=today-timedelta(days=1)
+        today_list=MergeData.objects.filter(date=today)
+        today_list=today_list.filter(user=request.user)
+        yesterday_list=MergeData.objects.filter(date=yesterday)
+        yesterday_list=yesterday_list.filter(user=request.user)
+        today_length=0
+        yesterday_length=0
+        if(len(list(today_list))>0):
+            today_length=len(list(today_list)[0].data["har"])
+        if(len(list(yesterday_list))>0):
+            yesterday_length=len(list(yesterday_list)[0].data["har"])
+        return Response({"today":today_length,"yesterday":yesterday_length},status=status.HTTP_200_OK)

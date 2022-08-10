@@ -9,5 +9,6 @@ urlpatterns = [
     path('upload/',views.UploadWithUserView.as_view()),
     path('merge/<str:date>',views.MergeDataView.as_view()),
     path('new/merge',views.MergeView.as_view()),
-    path('new/merge/<pk>',views.MergeViewD.as_view())
+    path('new/merge/<pk>',views.MergeViewD.as_view()),
+    path('merge/length/<str:day>',views.MergedDataLengthView.as_view())
 ]
