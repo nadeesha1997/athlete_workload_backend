@@ -86,3 +86,15 @@ class SportUserView(generics.GenericAPIView):
 class SportUserDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset = SportUser.objects.all()
     serializer_class = serializers.SportUserSerializer
+
+
+class UserActivityList(generics.GenericAPIView):
+    queryset = Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sports = SportUser.objects.filter(user_id=request.user)[0].sport
+        models = Activity.objects.filter(sport=sports)
+        serializer = self.serializer_class(instance=models, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

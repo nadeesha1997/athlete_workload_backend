@@ -155,3 +155,9 @@ class MergeView(generics.ListCreateAPIView):
 class MergeViewD(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MergeDataSerializer
     queryset = MergeData.objects.all()
+
+class MergedDataLengthView(generics.GenericAPIView):
+    serializer_class = MergeDataSerializer
+    queryset = MergeData.objects.all()
+    permission_classes = [IsAuthenticated]
+    # def get

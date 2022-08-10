@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +13,7 @@ from services.prediction import predict
 from datetime import datetime
 
 # Create your views here.
-from services.workload import next_day_workload, activity_acwr
+from services.workload import next_day_workload, activity_acwr, workload_of_week
 from sport.models import SportUser, Activity
 from upload.models import MergeData
 
@@ -22,8 +23,8 @@ class PredictView(generics.GenericAPIView):
     queryset = Predict.objects.all()
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, date):
-        all_data = MergeData.objects.all().filter(user_id=request.user.id, date=date)[0]
+    def post(self, request, day):
+        all_data = MergeData.objects.all().filter(user_id=request.user.id, date=day)[0]
         test_data = all_data.data["har"]
         sport = SportUser.objects.filter(user_id=request.user.id)[0].sport
         ml_model = ModelSport.objects.filter(sport=sport)[0].first_model
@@ -41,7 +42,7 @@ class PredictView(generics.GenericAPIView):
             average_heart_rate = sum(heart_rate) / len(heart_rate)
         user = all_data.user
         model_date = all_data.date
-        wl_data={"har":activity_count,"hr":average_heart_rate}
+        wl_data = {"har": activity_count, "hr": average_heart_rate}
         final_data = {
             "workload_data": wl_data,
             "date": model_date,
@@ -52,16 +53,34 @@ class PredictView(generics.GenericAPIView):
             workload_serializer.save()
             return Response(workload_serializer.data, status=status.HTTP_200_OK)
         return Response(workload_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def get(self,request,date):
-        user=request.user
+
+    # def get(self,request,date):
+    #     user=request.user
+    #     workload_data = Workload.objects.filter(user_id=request.user.id)
+    #     acwr_val=activity_acwr(list(workload_data))
+    #     daily_workload=workload_data.filter(date=date)
+    #     list_daily_workload=list(daily_workload)
+    #     ret_data=[]
+    #     ret_data.append(daily_workload)
+    #     acwr_vals=[]
+    #     for key in acwr_val:
+    #         acwr_vals.append(acwr_val[key])
+    #     return Response(data=list_daily_workload,status=status.HTTP_200_OK)
+    def get(self, request, day):
+        user = request.user
         workload_data = Workload.objects.filter(user_id=request.user.id)
-        acwr_val=activity_acwr(list(workload_data))
-        daily_workload=workload_data.filter(date=date)
-        list_daily_workload=list(daily_workload)
-        acwr_vals=[]
-        for key in acwr_val:
-            acwr_vals.append(acwr_val[key])
-        return Response(data=acwr_vals,status=status.HTTP_200_OK)
+        acwr_val = activity_acwr(list(workload_data), datetime.today().date())
+
+        # daily_workload=workload_data.filter(date=date)
+        # list_daily_workload=list(daily_workload)
+        # ret_data=[]
+        # ret_data.append(acwr_val)
+        # ret_data.append(list_daily_workload)
+        # ret_data.append(daily_workload)
+        # acwr_vals=[]
+        # for key in acwr_val:
+        #     acwr_vals.append(acwr_val[key])
+        return Response(data=acwr_val, status=status.HTTP_200_OK)
 
 
 class ScheduleView(generics.GenericAPIView):
@@ -75,4 +94,23 @@ class ScheduleView(generics.GenericAPIView):
         activities = Activity.objects.filter(sport=sport)
         next_day_min = next_day_workload(workload_data, 0.8, activities)
         next_day_max = next_day_workload(workload_data, 1.3, activities)
-        return Response(next_day_max,status=status.HTTP_200_OK)
+        schedule = [next_day_min, next_day_max]
+        return Response(schedule, status=status.HTTP_200_OK)
+
+
+class WeeklyWorkloadView(generics.GenericAPIView):
+    serializer_class = PredictSerializer
+    queryset = Predict.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, day):
+        weekly_acwr = []
+        user = request.user
+        workload_data = Workload.objects.filter(user_id=request.user.id)
+        acwr_val = workload_of_week(list(workload_data), datetime.today().date())
+        return Response(acwr_val, status=status.HTTP_200_OK)
+# class HrWorkloadView(generics.GenericAPIView):
+#     serializer_class = PredictSerializer
+#     queryset = Predict.objects.all()
+#     permission_classes = [IsAuthenticated]
+#     def get(self,request,day):

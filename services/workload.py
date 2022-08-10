@@ -1,15 +1,15 @@
-from datetime import date
+from datetime import date, timedelta
 
 
 ##################################################################
 # Return weekly workloads as a set of values from list of workloads
 ###################################################################
-def workload_measurement(workloadlist):
+def workload_measurement(workloadlist, today):
     first_week = []
     second_week = []
     third_week = []
     fourth_week = []
-    today = date.today()
+    # today = date.today()
     for item in workloadlist:
         day_difference = (today - item.date).days
         if day_difference < 29:  # date difference
@@ -40,12 +40,12 @@ def acwr(first_week, second_week, third_week, forth_week):
 #################################
 # Return ACWR for all activities
 ##################################
-def activity_acwr(workload_list):
+def activity_acwr(workload_list, today):
     w_list = list(workload_list)
     acwr_val = {}
     for key in w_list[0].workload_data["har"]:  # iterating over activities
         first_week_workload, second_week_workload, third_week_workload, fourth_week_workload = workload_measurement(
-            workload_list)
+            workload_list, today)
         acwr_val[key] = acwr(first_week_workload[key], second_week_workload[key], third_week_workload[key],
                              fourth_week_workload[key])
         # print("first_week_workload" + str(first_week_workload[key]))
@@ -103,7 +103,8 @@ def next_day_workload(workloadlist, acwr, activities):
                 second_week.append(item)
             else:
                 first_week.append(item)
-    weekly_workloads = {'1': weekly_workload(first_week), '2': weekly_workload(second_week),#weekly workload for each week
+    weekly_workloads = {'1': weekly_workload(first_week), '2': weekly_workload(second_week),
+                        # weekly workload for each week
                         '3': weekly_workload(third_week), '4': weekly_workload(fourth_week)}
     activity_workloads = {}
     for key1 in weekly_workloads['1']:
@@ -118,3 +119,12 @@ def next_day_workload(workloadlist, acwr, activities):
                                             activity_workloads[key][2], activity_workloads[key][3])
 
     return final_data
+
+
+def workload_of_week(workloadlist, today):
+    week = []
+    for i in range(7):
+        temp = activity_acwr(workloadlist, today)
+        week.append(temp)
+        today = today - timedelta(days=1)
+    return week
