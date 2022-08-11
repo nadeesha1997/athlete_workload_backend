@@ -125,6 +125,10 @@ def workload_of_week(workloadlist, today):
     week = []
     for i in range(7):
         temp = activity_acwr(workloadlist, today)
-        week.append(temp)
+        hr=workloadlist[i].workload_data["hr"]
+        ret={}
+        ret["activity"]=temp
+        ret["hr"]=hr
+        week.append(ret)
         today = today - timedelta(days=1)
     return week

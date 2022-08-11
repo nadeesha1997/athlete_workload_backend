@@ -83,6 +83,31 @@ class PredictView(generics.GenericAPIView):
         return Response(data=acwr_val, status=status.HTTP_200_OK)
 
 
+class WorkloadListView(generics.GenericAPIView):
+    serializer_class = WorkloadSerializer
+    queryset = Workload.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        models = Workload.objects.filter(user=request.user).filter(date=datetime.today().date())
+        print(datetime.today().date())
+        serializer = self.serializer_class(instance=models, many=True)
+        # if serializer.is_valid(raise_exception=True):
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        # return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WorkloadAllView(generics.GenericAPIView):
+    serializer_class = WorkloadSerializer
+    queryset = Workload.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        models = Workload.objects.filter(user=request.user)
+        serializer = self.serializer_class(instance=models, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
 class ScheduleView(generics.GenericAPIView):
     serializer_class = PredictSerializer
     queryset = Predict.objects.all()
@@ -107,7 +132,9 @@ class WeeklyWorkloadView(generics.GenericAPIView):
         weekly_acwr = []
         user = request.user
         workload_data = Workload.objects.filter(user_id=request.user.id)
-        acwr_val = workload_of_week(list(workload_data), datetime.today().date())
+        lst = list(workload_data)
+        lst.reverse()
+        acwr_val = workload_of_week(lst, datetime.today().date())
         return Response(acwr_val, status=status.HTTP_200_OK)
 # class HrWorkloadView(generics.GenericAPIView):
 #     serializer_class = PredictSerializer

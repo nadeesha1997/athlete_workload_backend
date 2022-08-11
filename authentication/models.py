@@ -62,7 +62,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager,AbstractBaseUser
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name,tc, password=None,password2=None):
+    def create_user(self, email, name,min_hr,max_hr, password=None,password2=None):
         """
         Creates and saves a User with the given email, date of
         birth and password.
@@ -73,14 +73,15 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             name=name,
-            tc=tc,
+            min_hr=min_hr,
+            max_hr=max_hr
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name,tc, password=None):
+    def create_superuser(self, email, name,min_hr,max_hr, password=None):
         """
         Creates and saves a superuser with the given email, date of
         birth and password.
@@ -89,7 +90,9 @@ class UserManager(BaseUserManager):
             email,
             password=password,
             name=name,
-            tc=tc,
+            max_hr=max_hr,
+            min_hr=min_hr
+
         )
         user.is_admin = True
         user.save(using=self._db)
@@ -103,7 +106,8 @@ class User(AbstractBaseUser):
         unique=True,
     )
     name = models.CharField(max_length=50, default='user')
-    tc=models.BooleanField(default=False)
+    min_hr=models.IntegerField(default=0)
+    max_hr=models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
@@ -112,7 +116,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name','tc']
+    REQUIRED_FIELDS = ['name','max_hr','min_hr']
 
     def __str__(self):
         return self.email
