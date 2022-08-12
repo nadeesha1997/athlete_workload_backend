@@ -30,7 +30,7 @@ urlpatterns = [
     path('model/', include('mlmodel.urls')),
     path('upload/', include('upload.urls')),
     path('device/', include('device.urls')),
-    path('predict/', include('predict.urls'))
+    # path('predict/', include('predict.urls'))
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

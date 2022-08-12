@@ -4,7 +4,7 @@ from tensorflow import keras
 import tensorflow as tf
 import pandas as pd
 
-frame_size = 100
+frame_size = 33
 hop_size = 1
 
 

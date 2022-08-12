@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'sport.apps.SportConfig',
     'upload.apps.UploadConfig',
     'device.apps.DeviceConfig',
-    'predict.apps.PredictConfig',
+    # 'predict.apps.PredictConfig',
     'corsheaders'
 ]
 
@@ -104,11 +104,21 @@ WSGI_APPLICATION = 'athlete_workload_backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 if DEBUG:
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.sqlite3',
+    #         'NAME': BASE_DIR / 'db.sqlite3',
+    #     }}
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }}
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'workload2',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
 else:
     DATABASES = {
         'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
@@ -160,7 +170,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 django_heroku.settings(locals())
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=90),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
